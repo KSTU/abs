@@ -1,0 +1,92 @@
+ g:=g_ob;
+ g:=g/kol_parr;
+ g0:=g*mmsm/22.4*(1.0)/(1.0+yn); //*(1.0-yob)*(mmg/22.4);  //массовый расход газа носителя
+ masa1:=g*mmsm/22.4*yn/(1.0+yn);    //массовый расход абсорбтива
+ masa3:=masa1-g0*yk;     //масса поглощенного компонента
+ //xravn:=yn/ras;     //равновесная концентрация в жидкости
+ lmin:=g0*(yn-yk)/(xravn-xn);   //минимальный расход абсорбента
+ /// вставили сверху
+  otl:=1.0+25.0/2500*i;
+  calcdysr();
+  calcwpr();
+  //оптимизируем w
+  ob_nul:=g*(273+temp)/273/davl*0.1013;
+  diamin:=sqrt(4.0*ob_nul/chpi/wpr); //минимальны диаметр
+  //standartd(); //стандартизируем диаметр
+  ardim();
+{  if standd[diaminn]<=maxdiam then
+   begin
+   notend:=0;
+   end
+  else
+   begin
+    kol_parr:=kol_parr+1;
+   end;           }     //закоментировано
+//end;                       //-0,6
+  //если диаметр не канает - уменьшаем расход вдвое
+  for j:=diaminn to 27 do
+    begin
+    dia:=standd[j];
+    if standd[j]<= maxdiam then
+      begin
+      wrab:=4.0*ob_nul/chpi/dia/dia; //рабочая скорость
+      if wrab/wpr<0.5 then
+      begin
+      S:=chpi*dia*dia/4.0; //площадь
+      U:=lmin*otl/roa2/S; //L=lmin*otl
+      Umin:=a2*nasqef1;
+      If (U>Umin) then
+        begin
+        psi:=1.0;
+        end
+      else
+        begin
+        psi:=0.122*power(U*roa2,(1.0/3.0))/sqrt(he2)*power(sig,-0.133/sqrt(he2));
+        end;
+        if psi>1 then psi:=1.0;
+//      if U>Umin then   //если плотность орошения больше минимальной
+//        begin          // считаем дальше
+        fia:=3600*U/(a2*(nasp1+3600*nasq1*U));
+        //расчет коэффициентов массотдачи
+         Dy:=4.3/100000000*power(temp,3/2)*sqrt(1/mmg+1/mma1)/davl/((power(mog,1/3)+power(moa1,1/3))*(power(mog,1/3)+power(moa1,1/3)));
+         Rey:=wrab*de1*roy/eps1/(mug/1000);
+         Pry:=(mug/1000)/roy/Dy;
+         if ((nasup1=1) or (nasup1=2)) then
+          begin
+          bety:=0.167*Dy/de1*power(rey,0.74)*Power(Pry,0.33)*Power(he1/de1,-0.47);
+          end
+          else
+          begin
+          bety:=0.407*power(Rey,0.655)*power(Pry,0.33)*Dy/de1;
+          end;
+         dpr:=power((mua2/1000)*(mua2/1000)/(roa2*roa2*9.8),1/3);
+         Rex:=4*U*roa2/a1/(mua2/1000);
+         Dx:=7.4/power(10,12)*power(assic*(mma2),0.5)*(273+temp)/(mua2)/power(moa2,0.6);
+         Prx:=(mua2/1000)/roa2/Dx;
+         betx:=0.0021*Dx/dpr*Power(Rex,0.75)*power(Prx,0.5);
+         bety:=bety*roy*(1.0/(1.0+yn));
+         betx:=betx*roa2;
+         Ky:=1/(1/bety+ras/betx);
+         F:=masa3/Ky/dysr;  //площадь поверхности
+         Hh:=F*4/chpi/a1/dia/dia/fia/psi;
+         //гидравлическое сопротивление
+         if nasup1=1 then lam:=6.64/power(Rey,0.375);
+         if nasup1=2 then lam:=133/Rey+2.34;
+         if nasup1=3 then
+            begin
+            if (Rey<40) then lam:=140.0/Rey else lam:=16/power(Rey,0.2);
+            end;
+         if nasup1=4 then lam:=lamt+(4.2/eps1/eps1-8.1/eps1+3.9)*de1/he1;
+         dpsuh:=lam*Hh/de1*wrab*wrab/eps1/eps1/2*roy;
+         dpm:=dpsuh*power(10,nasbn1*U);
+         //экономическая часть
+         kob:=trunc(Hh/maxh)+1;
+         Hh1:=Hh/kob; //высота одного абсорбера
+         Hn1:=hh1+0.3*(hh1/25/0.3-1); //высота насадочной части
+         Ha1:=hn1+1.05*dia+2.4;   //высота всего аппарата
+         Va:=Ha1*Chpi*dia*dia;   //объем аппарата
+
+         cc1:=ga*(b0+b1*Va)*kob*kol_parr/100;
+         cc2:=0.1*dpm*g0/22.4*mmsm*chas*ce*kob/(kg*rosm);
+         cc3:=(0.1*9.8*Ha1*ce/kn+3600*ce1)*lm*chas;
+         cob:=cc1+cc2+cc3;      //суммарные затраты
